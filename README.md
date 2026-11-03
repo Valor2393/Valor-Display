@@ -1,4 +1,4 @@
-If you are having trouble running the repository try the PROS command `pros make all` to completely rebuild the project. This should only be necessary to
+Note: If you are having trouble running the repository try the PROS command `pros make all` to completely rebuild the project. This should only be necessary to
 run the first time you run the program after downloading.
 # Valor-Display
 
@@ -52,13 +52,11 @@ Valor-Display/
 ├── include/
 │   ├── api.h
 │   ├── displays.h
-│   ├── jb_math.h
 │   ├── main.h
 │   ├── liblvgl/
 │   └── pros/
 ├── src/
 │   ├── displays.cpp
-│   ├── jb_math.cpp
 │   └── main.cpp
 ├── .gitignore
 ├── Makefile
