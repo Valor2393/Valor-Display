@@ -33,6 +33,9 @@ The primary logic is split into:
 - `src/displays.cpp` — LVGL display UI and temperature monitoring implementation
 - `include/` — project headers and PROS/LVGL interface files
 
+## How it fits together: 
+initialize() in src/main.cpp sets up the robot devices, starts background display and temperature-monitoring tasks, and builds the LVGL selector via functions in src/displays.cpp. Selector callbacks update the chosen alliance, routine, and variation; opcontrol() reads the controller and drives the robot in arcade, tank, or split mode. Temperature monitoring reports motor readings on the V5 screen and controller display, with an alert when drive motors overheat.
+
 ## Hardware Targets
 
 - VEX V5 Brain
