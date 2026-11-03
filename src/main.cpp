@@ -21,11 +21,11 @@
 
 // Program Dependencies
 
-#include "jb_math.h"
 #include "displays.h"// Auton selector & temperature screen
 
 
 pros::IMU imu(14);
+double wrap_to_360(double angle);
 inline double get_heading(pros::IMU& gyro = imu) {return wrap_to_360(gyro.get_rotation() * 1.0054 );} 
 void odom_verbose();
 
@@ -303,4 +303,13 @@ void wait_for_gyro_cal(uint32_t max_wait) {
 		pros::delay(10); 
 		other_text = "Waiting for gyro cal";
 	}
+}
+/*
+Units: Degrees
+Output: inputted value as a range between 0-360°
+*/
+double wrap_to_360(double angle) {
+    double wrapped = fmod(angle, 360.0);
+    if (wrapped < 0) wrapped += 360.0;
+    return wrapped;
 }

@@ -1,5 +1,4 @@
 #include "displays.h"
-#include "jb_math.h"
 #include "liblvgl/core/lv_obj.h"
 #include "liblvgl/core/lv_obj_pos.h"
 #include "liblvgl/display/lv_display.h"
@@ -8,6 +7,7 @@
 #include "liblvgl/widgets/image/lv_image.h"
 #include "pros/llemu.hpp"
 #include "pros/misc.hpp"
+#include "pros/motor_group.hpp"
 #include "pros/screen.h"
 #include <cstring>
 #include <string>
@@ -46,6 +46,9 @@ inline void RedBackground() { lv_obj_set_style_bg_color(lv_screen_active(), lv_c
 void display_img(const void * dir);
 void hide_img();
 void show_logo();
+// Helper function for calculations
+double vect_avg(std::vector<int>& vect) ;
+double vect_avg(std::vector<double>& vect) ;
 
 // PROS temperature screen external variable declarations
 extern bool showTemp; // Toggle on and off the PROS lcd display
@@ -338,4 +341,23 @@ void temperature_monitoring() {
 		}
 		
 	}
+}
+
+double vect_avg(std::vector<int>& vect) { // integer
+	if (vect.empty()) return 0;
+	double  sum = 0;
+	for (double v : vect) {
+		sum += v;
+	}
+	double average = sum/(double)vect.size();
+	return average;
+}
+double vect_avg(std::vector<double>& vect) { // double
+	if (vect.empty()) return 0;
+	double  sum = 0;
+	for (double v : vect) {
+		sum += v;
+	}
+	double average = sum/vect.size();
+	return average;
 }
