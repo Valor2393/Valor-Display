@@ -20,14 +20,28 @@
 #include <vector>
 
 // Program Dependencies
-
 #include "displays.h"// Auton selector & temperature screen
 
+// ———————————————— Auton Selector Variables ————————————————
+char alliance = ' ';
 
+int autonVariation = 1;
+
+std::string auton_name = "Skills"; // initialize to default routine
+
+// Dynamically creates 1 button per item in the following list
+std::vector<std::string> routines {"Side","Close Split", "Solo","Close","Skills"};
+
+void odom_verbose(); // display odometry & other verbose on brain
+void controller_display(); // display routine & temperatures on controller's display
+char temp_buff[16]; // buffer storing temperature status to show on the controller
+	//populated by functions in displays.h
+std::string other_text = " "; // Used to print a custom message the controller
+// ———————————————— IMU ————————————————
 pros::IMU imu(14);
 double wrap_to_360(double angle);
 inline double get_heading(pros::IMU& gyro = imu) {return wrap_to_360(gyro.get_rotation() * 1.0054 );} 
-void odom_verbose();
+void wait_for_gyro_cal(uint32_t max_wait = 60000);
 
 // ———————————————— Drive Chassis ————————————————
 pros::MotorGroup left_mtr_group({-11, 12, 13},pros::v5::MotorGears::blue); // left motor group	
@@ -41,26 +55,8 @@ pros::MotorGroup lift({-9,16},pros::v5::MotorGears::blue);
 // ———————————————— Intake ————————————————
 pros::MotorGroup intake({-15});
 
-	
 // ———————————————— Controller ————————————————
 pros::Controller master(CONTROLLER_MASTER);
-
-
-
-// ———————————————— Auton Variables ————————————————
-char alliance = ' ';
-
-int autonVariation = 1;
-
-std::string auton_name = "Skills";
-
-std::vector<std::string> routines {"Side","Close Split", "Solo","Close","Skills"};
-void wait_for_gyro_cal(uint32_t max_wait = 60000);
-// Other Declarations
-void controller_display();
-//bool try_odom_reset(bool reset_east = true, bool reset_west = true, bool reset_north = false, bool reset_south = false , int margin = 25, bool force_reset =false);
-
-char temp_buff[16]; // output text to controller's LCD display
 
 /*############################ Settings #############################
 |																	|
@@ -72,10 +68,8 @@ inline void add_dead_zone(double& value, double = dead_zone) { if (std::abs(valu
 controllerMode drive_mode = ARCADE;
 #define TURN_RATO  0.65 // limit turning speed
 
-// ———————————————— Debuging Variables ————————————————
 bool showTemp = false; // When true the brain's LCD displays the motors' temperatures
 // showTemp is set to true in driver control
-std::string other_text = " "; // Used to print a message the controller's LCD
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -96,7 +90,6 @@ void initialize() {
 	pros::Task odom_verbose_task([&]{odom_verbose();});
 	pros::Task display_task([&]{controller_display();});
 	pros::Task temp_screen_task([=] {temperature_monitoring();});
-
 
 
 	// –––––– Task Priorities ––––––
