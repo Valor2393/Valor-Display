@@ -25,20 +25,16 @@
 #include "displays.h"// Auton selector & temperature screen
 
 
-	pros::IMU imu(14);
-	inline double get_heading(pros::IMU& gyro = imu) {return wrap_to_360(gyro.get_rotation() * 1.0054 );} 
-	void odom_verbose();
+pros::IMU imu(14);
+inline double get_heading(pros::IMU& gyro = imu) {return wrap_to_360(gyro.get_rotation() * 1.0054 );} 
+void odom_verbose();
 
 // ———————————————— Drive Chassis ————————————————
-	pros::MotorGroup left_mtr_group({-11, 12, 13},pros::v5::MotorGears::blue); // left motor group	
-	pros::MotorGroup right_mtr_group({-18, -19, 20},pros::v5::MotorGears::blue); // right motor group 
+pros::MotorGroup left_mtr_group({-11, 12, 13},pros::v5::MotorGears::blue); // left motor group	
+pros::MotorGroup right_mtr_group({-18, -19, 20},pros::v5::MotorGears::blue); // right motor group 
 
-	
-	enum controllerMode {
-		ARCADE = 0,
-		TANK = 1,
-		SPLIT = 2,
-	};
+// Add enum containing three modes to cycle through
+enum controllerMode {ARCADE, TANK, SPLIT};
 
 // ———————————————— Lift ————————————————
 pros::MotorGroup lift({-9,16},pros::v5::MotorGears::blue);
@@ -48,7 +44,6 @@ pros::MotorGroup intake({-15});
 	
 // ———————————————— Controller ————————————————
 pros::Controller master(CONTROLLER_MASTER);
-#define EMERGENCY_BTN pros::E_CONTROLLER_DIGITAL_LEFT
 
 
 
@@ -72,13 +67,14 @@ char temp_buff[16]; // output text to controller's LCD display
 |																	|
 ####################################################################*/
 // ———————————————— Operation Control ————————————————
-bool pdf_testing = false;
-bool verbose = false;
 double dead_zone = 10;
 inline void add_dead_zone(double& value, double = dead_zone) { if (std::abs(value) < dead_zone) value = 0;}
+controllerMode drive_mode = ARCADE;
+#define TURN_RATO  0.65 // limit turning speed
 
 // ———————————————— Debuging Variables ————————————————
-bool showTemp = false; // When true the brain's LCD displays the motor's temperatures
+bool showTemp = false; // When true the brain's LCD displays the motors' temperatures
+// showTemp is set to true in driver control
 std::string other_text = " "; // Used to print a message the controller's LCD
 
 /**
@@ -133,7 +129,7 @@ void disabled() {}
  */
 void competition_initialize() {
 	while (true) {
-		// —— Check if gyro failed to calibrate ——
+		// —— Check if gyro calibrate incorrectly——
 		if (std::abs(imu.get_rotation()) > 0.5 && !imu.is_calibrating()) {
 			master.rumble("_");
 			// update controller screen
@@ -153,7 +149,6 @@ void autonomous() {
  	// ———————————————— Setup ————————————————
 	uint32_t star_t = pros::millis(); 	// get clock at start of auton
 
-	
 	// turn the toggle to alliance color (Regardless of routine)
 	if (auton_name == "Close") {
 		// routine code
@@ -193,21 +188,12 @@ controllerMode next_mode(controllerMode config)
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	showTemp = true;
-	// Set motor settings for driver control
+	showTemp = true; // Set motor settings for driver control
 	left_mtr_group.set_brake_mode(MOTOR_BRAKE_COAST);
 	right_mtr_group.set_brake_mode(MOTOR_BRAKE_COAST);
-	controllerMode drive_mode = ARCADE;
-	#define TURN_RATO  0.65 // limit turning speed
-	bool manual_control = false;
-	float previous_lift_pose = 0;
-	uint32_t lifted_time = 0;
-	// Turn off color sorting in Skills and in the case of a DC during the match
-	//if (pros::millis() < 15000 && pros::competition::is_connected()) {color_sorting = false; alliance = ' ';}
 	while (true) {
-		
 		// Change driving mode
-		if (master.get_digital_new_press(DIGITAL_RIGHT) && false) {
+		if (master.get_digital_new_press(DIGITAL_RIGHT)) {
 			drive_mode = next_mode(drive_mode);
 		}
 		double y = master.get_analog(ANALOG_LEFT_Y);
@@ -221,7 +207,7 @@ void opcontrol() {
 		add_dead_zone(x);
 		add_dead_zone(x_r);
 		
-		// Set the left and right power according to drive mode
+		// Set the drivetrain's left and right power according to drive mode
 		switch (drive_mode ){
 			case ARCADE:
 				L = y + x * TURN_RATO;
@@ -302,8 +288,6 @@ void odom_verbose() {
 		//snprintf(orientation, sizeof(orientation),"Bot's Pose -> X: %.2f, Y:  %.2f, %.2f°", bot.x, bot.y, bot.heading);
 		// LemLib's tracking center
 		//snprintf(orientation_two, sizeof(orientation_two),"Tracking -> X: %.2f, Y: %.2f, %.2f°",chassis.getPose().x,chassis.getPose().y,chassis.getPose().theta);
-		// Drivedometry
-		//snprintf(orientation_two, sizeof(orientation_two),"Chassis -> X: %.2f, Y:  %.2f, %.2f°",odom_chassis.x, odom_chassis.y, odom_chassis.heading);
 		// Auton Selector
 		snprintf(auton_data, sizeof(auton_data),"%s, %c, var: %d\t lift %.0f intake:%.1fW",auton_name.c_str(),alliance,autonVariation, lift.get_position(),intake.get_power());
 		pros::lcd::set_text(5, auton_data);
