@@ -4,6 +4,9 @@ run the first time you run the program after downloading.
 
 A PROS-based VEX V5 robotics project that provides a custom brain display UI for autonomous selection, alliance choice, and motor temperature monitoring.
 
+Combines a touchscreen autonomous-routine and alliance selector with motor-temperature monitoring and driver-control modes; the autonomous routine branches are currently placeholders.
+
+
 This project uses LVGL for the display, along with PROS for VEX V5 robot control.
 
 ## Features
