@@ -1,5 +1,4 @@
-Note: If you are having trouble running the repository try the PROS command `pros make all` to completely rebuild the project. This should only be necessary to
-run the first time you run the program after downloading.
+>**_Note:_** If you are having trouble running the repository, try the PROS command `pros make all` to completely rebuild the project. This should only be necessary the first time you run the program after downloading it from GitHub.
 # Valor-Display
 
 A PROS-based VEX V5 robotics project that provides a custom brain display UI for autonomous selection, alliance choice, and motor temperature monitoring.
@@ -35,13 +34,6 @@ The primary logic is split into:
 
 ## How it fits together: 
 initialize() in src/main.cpp sets up the robot devices, starts background display and temperature-monitoring tasks, and builds the LVGL selector via functions in src/displays.cpp. Selector callbacks update the chosen alliance, routine, and variation; opcontrol() reads the controller and drives the robot in arcade, tank, or split mode. Temperature monitoring reports motor readings on the V5 screen and controller display, with an alert when drive motors overheat.
-
-## Hardware Targets
-
-- VEX V5 Brain
-- PROS (Project for Robot Operating System)
-- V5 motors and sensors used by the robot
-- Useed with a controller and display screen
 
 ## Repository Structure
 
